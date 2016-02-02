@@ -22,17 +22,17 @@ call plug#end()
 ```
 :ShowMeDB
 ```
-Move you to tabel in your schema.rb, structure.sql file, based on your model name or `self.table_name` if specific.
+Moves you to tabel in your schema.rb, structure.sql file, based on your model's name or `self.tabel_name` if specified.
 
 ```
-:ShowMeDB table_name
+:ShowMeDB tabel_name
 ```
-Move you to tabel, based on typed tabel name. Press `<tab>` to autocmplete.
+Moves you to tabel, based on typed tabel's name. Press `<tab>` to autocomplete.
 
 ```
 :ShowMeDBList
 ```
-Open buffer on right side with tabels names listed. Press `<enter>` to jump to tabel.
+Open buffer with tabels names listed. Press `<enter>` to jump to tabel.
 
 ```
 nnoremap <space>db
@@ -40,7 +40,7 @@ nnoremap <space>db
 If junegunn/fzf is instaled, open fuzzy seraching with tabels.
 
 
-ShowMeDB prefer schema.rb over structure.sql. Tu force using structure.sql add bang to command. Example `:ShowMeDB!`
+ShowMeDB prefers schema.rb over structure.sql. To force using structure.sql add bang to command. Example `:ShowMeDB!`
 
 ### FZF integration
 

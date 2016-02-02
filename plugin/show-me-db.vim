@@ -9,21 +9,16 @@ function! s:boot_for_buff()
   let b:use_structure = filereadable(b:rails_root . "/db/structure.sql")
 endfunction
 
-function! s:StructPath()
-  let path = showmedb#lib#rails_root() . "/db/structure.sql"
-  if filereadable(path) | return path | endif
-
-  return 0
-endfunction
-
 function! s:find_in(word, ...)
   let use = a:0 > 0 ? a:1 : ''
 
   if (b:use_schema && use != 'structure')
-    execute 'edit ' . b:rails_root . "/db/schema.rb"
+    exec 'silent pedit ' . b:rails_root . "/db/schema.rb"
+    wincmd P | wincmd L
     call search('\v\ccreate_table "' . a:word . '(s|es)?"')
   elseif (b:use_structure || use == 'structure')
-    execute 'edit ' . b:rails_root . "/db/structure.sql"
+    exec 'silent pedit ' . b:rails_root . "/db/structure.sql"
+    wincmd P | wincmd L
     call search('\v\cCREATE.TABLE ' . a:word . '(s|es)?\s')
   endif
 
@@ -106,7 +101,7 @@ endfunction
 function! s:open_list(bang)
   if exists('s:view') && bufloaded(s:view) | exec s:view.'bd!' | endif
 
-  exec 'silent pedit DB_List'
+  exec 'silent pedit ShowMeDBList'
 
   wincmd P | wincmd L
 
