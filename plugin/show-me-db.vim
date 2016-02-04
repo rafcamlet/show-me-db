@@ -1,3 +1,11 @@
+" Easy rails schema (or structure.sql) tabel finder for neovim / vim
+" Author: Rafał Camlet <raf.camlet@gmail.com>
+" License: MIT
+" Version: 0.0.3
+" Last Change: 04.02.2016
+
+let s:current_serach = ''
+
 function! s:boot_for_buff()
   if exists('b:show_me_db_init') | return 0 | endif
 
@@ -94,8 +102,23 @@ function! s:get_list(exp, use)
   endif
 endfunction
 
-function! s:TableList(A,L,P)
-  return <sid>get_list(a:A, '')
+function! s:custom_sort(f, s)
+  let f_points = match(a:f, s:current_serach) + (len(a:f) - len(s:current_serach))
+  let s_points = match(a:s, s:current_serach) + (len(a:s) - len(s:current_serach))
+
+  if f_points < s_points
+    return -1
+  elseif f_points > s_points
+    return 1
+  else
+    return 0
+  endif
+endfunction
+
+function! s:table_list(A,L,P)
+  let s:current_serach = a:A
+  let bang = (a:L =~ 'ShowMeDB!') ? 1 : 0
+  return sort(s:get_list(a:A, bang ? 'structure' : ''), 's:custom_sort' )
 endfunction
 
 function! s:open_list(bang)
@@ -126,7 +149,7 @@ function! s:open_list(bang)
 endfunction
 
 command! -nargs=? -bang ShowMeDBList call <sid>open_list('!' == '<bang>')
-command! -nargs=? -bang -complete=customlist,s:TableList ShowMeDB call <sid>main_find('!' == '<bang>', <q-args>)
+command! -nargs=? -bang -complete=customlist,s:table_list ShowMeDB call <sid>main_find('!' == '<bang>', <q-args>)
 
 if exists('*fzf#run')
   nnoremap <silent> <space>db :call fzf#run({
