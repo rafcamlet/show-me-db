@@ -35,10 +35,11 @@ Moves you to tabel, based on typed tabel's name. Press `<tab>` to autocomplete.
 Open buffer with tabels names listed. Press `<enter>` to jump to tabel.
 
 ```
-nnoremap <space>db
+<plug>show_me_db_fzf
+<plug>show_me_db_fzf_force
 ```
-If junegunn/fzf is instaled, open fuzzy seraching with tabels.
-
+If junegunn/fzf is instaled, open fuzzy seraching with tabels. You can map these to custom keys. Don't forget use recursing allow mapping. Example `nmap <leader>db <plug>show_me_db_fzf_force`.
+`<plug>show_me_db_fzf_force` is analogy of bang commands.
 
 ShowMeDB prefers schema.rb over structure.sql. To force using structure.sql add bang to command. Example `:ShowMeDB!`
 

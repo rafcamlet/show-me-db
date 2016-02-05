@@ -1,5 +1,9 @@
 ## Change Log
 
+#### 0.0.4
+- Add mappings for fzf
+- Code cleanup and refactoring
+
 #### 0.0.3
 - More accurate autocomplete results
 - Fix error with autocomplete for bang commands
@@ -12,7 +16,6 @@
 
 ## TODO
 - Fix ShowMeDBList! move action
-- Add commands for FZF
 - Add default mappings and option to turn off it
 - Add compatibility checks
 - Add dont load twice check

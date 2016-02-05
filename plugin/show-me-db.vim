@@ -1,161 +1,23 @@
 " Easy rails schema (or structure.sql) tabel finder for neovim / vim
 " Author: Rafał Camlet <raf.camlet@gmail.com>
 " License: MIT
-" Version: 0.0.3
-" Last Change: 04.02.2016
+" Version: 0.0.4
+" Last Change: 05.02.2016
 
-let s:current_serach = ''
+scriptencoding utf-8
+let s:save_cpo = &cpo
+set cpo&vim
 
-function! s:boot_for_buff()
-  if exists('b:show_me_db_init') | return 0 | endif
+let g:loaded_show_me_db = '0.0.4' " version number
 
-  let b:show_me_db_init = 1
-  let b:rails_root = showmedb#lib#rails_root()
-  if empty(b:rails_root) | return 0 | endif
+command! -nargs=? -bang ShowMeDBList call showmedb#open_list('!' == '<bang>')
+command! -nargs=? -bang -complete=customlist,showmedb#table_list ShowMeDB
+ \ call showmedb#main_find('!' == '<bang>', <q-args>)
 
-  let b:use_schema = filereadable(b:rails_root . "/db/schema.rb")
-  let b:use_structure = filereadable(b:rails_root . "/db/structure.sql")
-endfunction
+nnoremap <silent> <plug>show_me_db_fzf :call showmedb#fzf#show_me_db_fzf()<cr>
+nnoremap <silent> <plug>show_me_db_fzf_force :call showmedb#fzf#show_me_db_fzf_force()<cr>
 
-function! s:find_in(word, ...)
-  let use = a:0 > 0 ? a:1 : ''
+nmap <space>db <plug>show_me_db_fzf_force
 
-  if (b:use_schema && use != 'structure')
-    exec 'silent pedit ' . b:rails_root . "/db/schema.rb"
-    wincmd P | wincmd L
-    call search('\v\ccreate_table "' . a:word . '(s|es)?"')
-  elseif (b:use_structure || use == 'structure')
-    exec 'silent pedit ' . b:rails_root . "/db/structure.sql"
-    wincmd P | wincmd L
-    call search('\v\cCREATE.TABLE ' . a:word . '(s|es)?\s')
-  endif
-
-  normal! zt
-endfunction
-
-function! s:find_name_in_model()
-  normal! gg
-  let str = showmedb#lib#get_match('\vself\.table_name.*''([a-z_]*)''', 1)
-
-  if empty(str)
-    let str = showmedb#lib#get_match('\vclass\s+([a-zA-Z:]*).*ActiveRecord::Base', 1)
-    if empty(str) | return 0 | endif
-
-    let str = substitute(str, '::', '_', 'g')
-    let str = substitute(str, '\v\C([a-zA-Z])@<=([A-Z])', '_\L\2', 'g')
-    let str = substitute(str, '\v.*', '\L\0', '')
-  endif
-
-  let str = substitute(str, ' ', '', 'g')
-  return str
-endfunction
-
-function! s:main_find(bang, ...)
-  call s:boot_for_buff()
-
-  if empty(b:rails_root) || (empty(b:use_schema) && empty(b:use_structure))
-    return 0
-  endif
-
-  if (b:use_schema && !a:bang && a:0 > 0 && a:1 != '')
-    return s:find_in(a:1, 'schema')
-  endif
-
-  if (b:use_structure && a:0 > 0 && a:1 != '')
-    return s:find_in(a:1, 'structure')
-  endif
-
-  call showmedb#lib#cur_pos('save')
-
-  let str = s:find_name_in_model()
-  if empty(str) | return showmedb#lib#cur_pos('restore') | endif
-
-  if (b:use_schema && !a:bang ) | return s:find_in(str, 'schema') | endif
-  if (b:use_structure) | return s:find_in(str, 'structure') | endif
-endfunction
-
-function! s:get_list(exp, use)
-  call s:boot_for_buff()
-
-  if empty(b:rails_root) || (empty(b:use_schema) && empty(b:use_structure))
-    return 0
-  endif
-
-  if (b:use_schema && a:use != 'structure')
-    let tables = readfile(b:rails_root . "/db/schema.rb")
-    let regexp = '\v\Ccreate_table "([a-z_]{-}' . a:exp .  '[a-z_]*)"'
-    let sub = '\1'
-
-    call map(tables, 'matchstr(v:val, regexp)')
-    call filter(tables, 'strlen(v:val)')
-    return map(tables, 'substitute(v:val, regexp, sub, "g")')
-  endif
-
-  if (b:use_structure)
-    let tables = readfile(b:rails_root . "/db/structure.sql")
-    let regexp = '\v\CCREATE TABLE ([a-z_]{-}' . a:exp .  '[a-z_]*)\s'
-    let sub = '\1'
-
-    call map(tables, 'matchstr(v:val, regexp)')
-    call filter(tables, 'strlen(v:val)')
-    return map(tables, 'substitute(v:val, regexp, sub, "g")')
-  endif
-endfunction
-
-function! s:custom_sort(f, s)
-  let f_points = match(a:f, s:current_serach) + (len(a:f) - len(s:current_serach))
-  let s_points = match(a:s, s:current_serach) + (len(a:s) - len(s:current_serach))
-
-  if f_points < s_points
-    return -1
-  elseif f_points > s_points
-    return 1
-  else
-    return 0
-  endif
-endfunction
-
-function! s:table_list(A,L,P)
-  let s:current_serach = a:A
-  let bang = (a:L =~ 'ShowMeDB!') ? 1 : 0
-  return sort(s:get_list(a:A, bang ? 'structure' : ''), 's:custom_sort' )
-endfunction
-
-function! s:open_list(bang)
-  if exists('s:view') && bufloaded(s:view) | exec s:view.'bd!' | endif
-
-  exec 'silent pedit ShowMeDBList'
-
-  wincmd P | wincmd L
-
-  let s:view = bufnr('%')
-  set modifiable
-
-  call append(0, 'List of tables names in structure.sql:')
-  call append(2, s:get_list('', a:bang ? 'structure' : '' ))
-
-  setl buftype=nofile
-  setl noswapfile
-  set bufhidden=wipe
-
-  setl cursorline
-  setl nonu ro noma
-  if (exists('&relativenumber')) | setl norelativenumber | endif
-
-  command! -nargs=1 -buffer OpenThis call <sid>find_in(<q-args>)
-  nnoremap <silent> <buffer> <cr> :exec "OpenThis " .  getline('.')<cr>
-
-  exec ':3'
-endfunction
-
-command! -nargs=? -bang ShowMeDBList call <sid>open_list('!' == '<bang>')
-command! -nargs=? -bang -complete=customlist,s:table_list ShowMeDB call <sid>main_find('!' == '<bang>', <q-args>)
-
-if exists('*fzf#run')
-  nnoremap <silent> <space>db :call fzf#run({
-        \   'source':  <sid>get_list('', ''),
-        \   'sink':    function('<sid>find_in'),
-        \   'options': '+m',
-        \   'down':    len(<sid>get_list('', '')) + 2
-        \ })<CR>
-endif
+let &cpo = s:save_cpo
+unlet s:save_cpo
