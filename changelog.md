@@ -1,5 +1,8 @@
 ## Change Log
 
+#### 0.0.5
+- Fix ShowMeDBList command
+
 #### 0.0.4
 - Add mappings for fzf
 - Code cleanup and refactoring

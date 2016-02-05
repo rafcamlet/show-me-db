@@ -27,7 +27,7 @@ function! showmedb#open_list(bang) " {{{
   set modifiable
 
   call append(0, 'List of tables names in structure.sql:')
-  call append(2, s:get_list('', a:bang ? 'structure' : '' ))
+  call append(2, showmedb#get_list('', a:bang ? 'structure' : '' ))
 
   setl buftype=nofile
   setl noswapfile
@@ -37,7 +37,7 @@ function! showmedb#open_list(bang) " {{{
   setl nonu ro noma
   if (exists('&relativenumber')) | setl norelativenumber | endif
 
-  command! -nargs=1 -buffer OpenThis call <sid>find_in(<q-args>)
+  command! -nargs=1 -buffer OpenThis call showmedb#find_in(<q-args>)
   nnoremap <silent> <buffer> <cr> :exec "OpenThis " .  getline('.')<cr>
 
   exec ':3'
