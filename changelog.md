@@ -1,5 +1,10 @@
 ## Change Log
 
+#### 0.0.6
+- Fix ShowMeDBList! `OpenThis` command
+- Add default mappings
+- Add opend word under cursor mapping
+
 #### 0.0.5
 - Fix ShowMeDBList command
 
@@ -18,10 +23,7 @@
 - Initial version
 
 ## TODO
-- Fix ShowMeDBList! move action
-- Add default mappings and option to turn off it
 - Add compatibility checks
-- Add dont load twice check
 - More example gifs
 - Add test
 - Improve README

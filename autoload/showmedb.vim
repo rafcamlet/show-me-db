@@ -19,6 +19,9 @@ endfunction
 function! showmedb#open_list(bang) " {{{
   if exists('s:view') && bufloaded(s:view) | exec s:view.'bd!' | endif
 
+  call showmedb#boot_for_buff()
+  let file_type = (b:use_schema && !a:bang) ? 'schema' : 'structure'
+
   exec 'silent pedit ShowMeDBList'
 
   wincmd P | wincmd L
@@ -26,18 +29,19 @@ function! showmedb#open_list(bang) " {{{
   let s:view = bufnr('%')
   set modifiable
 
-  call append(0, 'List of tables names in structure.sql:')
+  call append(0, 'List of tables names in ' . file_type . ':')
   call append(2, showmedb#get_list('', a:bang ? 'structure' : '' ))
 
   setl buftype=nofile
   setl noswapfile
   set  bufhidden=wipe
+  set  scrolloff=2
 
   setl cursorline
   setl nonu ro noma
   if (exists('&relativenumber')) | setl norelativenumber | endif
 
-  command! -nargs=1 -buffer OpenThis call showmedb#find_in(<q-args>)
+  exec "command! -nargs=1 -buffer OpenThis call showmedb#find_in(<q-args>,'" . file_type . "')"
   nnoremap <silent> <buffer> <cr> :exec "OpenThis " .  getline('.')<cr>
 
   exec ':3'
@@ -150,7 +154,9 @@ endfunction
 function! showmedb#table_list(A,L,P) "{{{
   let showmedb#current_serach = a:A
   let bang = (a:L =~ 'ShowMeDB!') ? 1 : 0
-  return sort(showmedb#get_list(a:A, bang ? 'structure' : ''), 'showmedb#custom_sort' )
+  let list = showmedb#get_list(a:A, bang ? 'structure' : '')
+  if empty(list) | return 0 | endif
+  return sort(list, 'showmedb#custom_sort' )
 endfunction
 "}}}
 
