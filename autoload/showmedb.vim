@@ -16,15 +16,32 @@ function! showmedb#boot_for_buff() " {{{
 endfunction
 " }}}
 
+function! showmedb#is_app_detected() "{{{
+  if empty(b:rails_root) || (empty(b:use_schema) && empty(b:use_structure))
+    return 0
+  endif
+
+  return 1
+endfunction
+"}}}
+
 function! showmedb#open_list(bang) " {{{
+  call showmedb#boot_for_buff()
+
+  if !showmedb#is_app_detected()
+    call showmedb#lib#error('No database file detected!')
+    return
+  endif
+
   if exists('s:view') && bufloaded(s:view) | exec s:view.'bd!' | endif
 
-  call showmedb#boot_for_buff()
   let file_type = (b:use_schema && !a:bang) ? 'schema' : 'structure'
 
   exec 'silent pedit ShowMeDBList'
 
   wincmd P | wincmd L
+
+  let b:file_type = file_type
 
   let s:view = bufnr('%')
   set modifiable
@@ -41,8 +58,13 @@ function! showmedb#open_list(bang) " {{{
   setl nonu ro noma
   if (exists('&relativenumber')) | setl norelativenumber | endif
 
-  exec "command! -nargs=1 -buffer OpenThis call showmedb#find_in(<q-args>,'" . file_type . "')"
-  nnoremap <silent> <buffer> <cr> :exec "OpenThis " .  getline('.')<cr>
+  function! s:open_this()
+    if line('.') < 3 | return | endif
+    call showmedb#find_in(getline('.'), b:file_type)
+  endfunction
+
+  command! -nargs=0 -buffer OpenThis call <sid>open_this()
+  nnoremap <silent> <buffer> <cr> :OpenThis<cr>
 
   exec ':3'
 endfunction
@@ -66,28 +88,34 @@ endfunction
 "}}}
 
 function! showmedb#find_name_in_model() " {{{
-  normal! gg
-  let str = showmedb#lib#get_match('\vself\.table_name.*''([a-z_]*)''', 1)
+  try
+    normal! gg
+    let str = showmedb#lib#get_match('\vself\.table_name.*''([a-z_]*)''', 1)
 
-  if empty(str)
-    let str = showmedb#lib#get_match('\vclass\s+([a-zA-Z:]*).*ActiveRecord::Base', 1)
-    if empty(str) | return 0 | endif
+    if empty(str)
+      let str = showmedb#lib#get_match('\vclass\s+([a-zA-Z:]*).*ActiveRecord::Base', 1)
+      if empty(str) | throw 'Table name not found!' | endif
 
-    let str = substitute(str, '::', '_', 'g')
-    let str = substitute(str, '\v\C([a-zA-Z])@<=([A-Z])', '_\L\2', 'g')
-    let str = substitute(str, '\v.*', '\L\0', '')
-  endif
+      let str = substitute(str, '::', '_', 'g')
+      let str = substitute(str, '\v\C([a-zA-Z])@<=([A-Z])', '_\L\2', 'g')
+      let str = substitute(str, '\v.*', '\L\0', '')
+    endif
 
-  let str = substitute(str, ' ', '', 'g')
-  return str
+    let str = substitute(str, ' ', '', 'g')
+    return str
+  catch
+    call showmedb#lib#error(v:exception)
+    return 0
+  endtry
 endfunction
 "}}}
 
 function! showmedb#main_find(bang, ...) " {{{
   call showmedb#boot_for_buff()
 
-  if empty(b:rails_root) || (empty(b:use_schema) && empty(b:use_structure))
-    return 0
+  if !showmedb#is_app_detected()
+    call showmedb#lib#error('No database file detected!')
+    return
   endif
 
   if (b:use_schema && !a:bang && a:0 > 0 && a:1 != '')

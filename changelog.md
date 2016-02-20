@@ -1,5 +1,8 @@
 ## Change Log
 
+#### 0.0.7
+- Add errors messages
+
 #### 0.0.6
 - Fix ShowMeDBList! `OpenThis` command
 - Add default mappings
@@ -21,9 +24,3 @@
 
 #### 0.0.1
 - Initial version
-
-## TODO
-- Add compatibility checks
-- More example gifs
-- Add test
-- Improve README

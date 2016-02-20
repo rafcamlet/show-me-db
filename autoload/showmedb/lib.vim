@@ -44,7 +44,7 @@ endfunction
 " To restore positions: call showmedb#lib#cur_pos("restore")
 " source: http://vim.wikia.com/wiki/Maintain_cursor_and_screen_position
 
-function showmedb#lib#cur_pos(action)
+function! showmedb#lib#cur_pos(action)
   if a:action == "save"
     let b:saveve = &virtualedit
     let b:savesiso = &sidescrolloff

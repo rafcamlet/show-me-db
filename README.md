@@ -4,6 +4,8 @@ Easy rails schema (or structure.sql) table finder for neovim / vim
 
 Warning: This project is currently incomplete and unstable.
 
+![show me db](https://raw.githubusercontent.com/rafcamlet/show-me-db/master/gifs/show_me_db.gif)
+
 ### Instalation
 
 Use your favorite plugin manager or copy this repo and put files in corensponding folders.
@@ -46,9 +48,9 @@ If junegunn/fzf is instaled, open fuzzy seraching with tables. You can map these
 <plug>show_me_db_word_under_cursor
 <plug>show_me_db_word_under_cursor_force
 ```
-Lookup for table name under currsor
+Lookup for table name under currsor.
 
-### Configure
+### Settings
 
 
 Default mappings:

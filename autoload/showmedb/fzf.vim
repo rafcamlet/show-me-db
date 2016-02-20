@@ -13,8 +13,14 @@ endfunction
 "}}}
 
 function! showmedb#fzf#show_me_db_fzf() "{{{
+  let source_list = showmedb#get_list('', '')
+  if empty(source_list)
+    call showmedb#lib#error('No tables found!')
+    return 0
+  endif
+
   call fzf#run({
-        \ 'source':  showmedb#get_list('', ''),
+        \ 'source': source_list,
         \ 'sink': function('s:regular_find_in'),
         \ 'options': '+m',
         \ 'down':    len(showmedb#get_list('', '')) + 2 })
@@ -22,8 +28,14 @@ endfunction
 "}}}
 
 function! showmedb#fzf#show_me_db_fzf_force() "{{{
+  let source_list = showmedb#get_list('', 'structure')
+  if empty(source_list)
+    call showmedb#lib#error('No tables found!')
+    return 0
+  endif
+
   call fzf#run({
-        \   'source':  showmedb#get_list('', 'structure'),
+        \   'source':  source_list,
         \   'sink':    function('s:force_structure_find_in'),
         \   'options': '+m',
         \   'down':    len(showmedb#get_list('', '')) + 2
