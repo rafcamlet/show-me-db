@@ -1,8 +1,8 @@
 " Easy rails schema (or structure.sql) table finder for neovim / vim
 " Author: Rafał Camlet <raf.camlet@gmail.com>
 " License: MIT
-" Version: 0.0.7
-" Last Change: 14.02.2016
+" Version: 1.0.0
+" Last Change: 09.03.2016
 
 scriptencoding utf-8
 

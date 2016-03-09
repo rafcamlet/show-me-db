@@ -1,5 +1,8 @@
 ## Change Log
 
+#### 1.0.0
+- Release
+
 #### 0.0.7
 - Add errors messages
 
