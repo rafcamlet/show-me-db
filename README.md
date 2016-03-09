@@ -2,8 +2,6 @@
 
 Easy rails schema (or structure.sql) table finder for neovim / vim
 
-Warning: This project is currently incomplete and unstable.
-
 ![show me db](https://raw.githubusercontent.com/rafcamlet/show-me-db/master/gifs/show_me_db.gif)
 
 ### Instalation
